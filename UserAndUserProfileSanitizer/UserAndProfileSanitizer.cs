@@ -88,15 +88,28 @@ namespace UserAndUserProfileSanitizer
                 .FinishWith((f, u) => { Console.WriteLine($"UserName = {u.Username}"); });
 
 
-            foreach (var profile in profiles)
-            {
-                //var explicitNumbersOnly = new Bogus.Randomizer().Replace("###-##-####");
-                //var explicitNumberAndLetterMix = new Randomizer().Replace("##? ??? ####");
-                //var implicitNumberAndLetterMix = new Randomizer().Replace("**-****");
+            //foreach (var profile in profiles)
+            //{
+            //    userProfileTemplate.Populate(profile);
+            //    userTemplate.Populate(profile.User);
+            //}
 
-                userProfileTemplate.Populate(profile);
-                userTemplate.Populate(profile.User);
+            var batchNumber = 0;
+            var batchSize = 100;
+
+            var batch= profiles.Take(batchSize);
+            while (batch.Any())
+            {
+                foreach (var profile in batch)
+                {
+                    userProfileTemplate.Populate(profile);
+                    userTemplate.Populate(profile.User);
+                }
+                batchNumber++;
+                batch = profiles.Skip(batchNumber * batchSize).Take(batchSize);
             }
+
+
 
             return context.SaveChanges();
         }

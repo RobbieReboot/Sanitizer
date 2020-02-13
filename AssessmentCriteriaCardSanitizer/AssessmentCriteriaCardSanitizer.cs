@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
-namespace AssessmentSanitizer
+namespace AssessmentCriteriaCardSanitizer
 {
     /// <summary>
     /// Cleans the Assessments table
@@ -19,34 +19,31 @@ namespace AssessmentSanitizer
     ///-- AssessorVerificationResponseNotes nvarchar(max)
     /// </remarks>
     [Export(typeof(ISanitizer))]
-    public class AssessmentSanitizer : ISanitizer
+    public class AssessmentCriteriaCardSanitizer : ISanitizer
     {
-        public AssessmentSanitizer()
+        public AssessmentCriteriaCardSanitizer()
         {
-            Console.WriteLine("AssessmentSanitizer Loaded.");
+            Console.WriteLine("AssessmentCriteriaCardSanitizer Loaded.");
         }
 
         public string Name
         {
-            get { return "AssessmentSanitizer"; }
+            get { return "AssessmentCriteriaCardSanitizer"; }
         }
         public string Description
         {
-            get { return "Sanitizes assessments table."; }
+            get { return "Sanitizes AssessmentCriteriaCardSanitizer table."; }
         }
 
         public int Sanitize(DbContext dbToSanitize)
         {
-            var context = (RailSmartContext) dbToSanitize;
+            var context = (RailSmartContext)dbToSanitize;
 
-            var assessments = context.Assessment;
+            var assessments = context.AssessmentCriteriaCard;
 
-            var assessmentTemplate = new Faker<Assessment>(locale: "en_GB")
+            var assessmentTemplate = new Faker<AssessmentCriteriaCard>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.AssessorFeedback, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.VerifierFinalFeedback, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.AssessorVerificationResponseNotes, f => f.WaffleText(paragraphs: 4, includeHeading: false))
+                .RuleFor(o => o.ReasonForRating, f => f.WaffleText(paragraphs: 4, includeHeading: false))
 
                 .FinishWith((f, u) =>
                 {
@@ -65,7 +62,7 @@ namespace AssessmentSanitizer
                     assessmentTemplate.Populate(assessment);
                 }
                 batchNumber++;
-                batch = assessments.Skip(batchNumber*batchSize).Take(batchSize);
+                batch = assessments.Skip(batchNumber * batchSize).Take(batchSize);
             }
 
             return context.SaveChanges();

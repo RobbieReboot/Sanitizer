@@ -18,10 +18,19 @@ namespace anon
     {
         //[ImportMany]
         //public List<Lazy<ISanitizer>> AllSanitizers { get; set; }
-        [ImportMany] private IEnumerable<ISanitizer> Sanitizers { get; set; }
+        [ImportMany] private static IEnumerable<ISanitizer> Sanitizers { get; set; }
         private static ContainerConfiguration Container { get; set; }
         private static void Main(string[] args)
         {
+            
+            Console.WriteLine("███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗██████╗ ");
+            Console.WriteLine("██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝██╔══██╗");
+            Console.WriteLine("███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗  ██████╔╝");
+            Console.WriteLine("╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝  ██╔══██╗");
+            Console.WriteLine("███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██║  ██║");
+            Console.WriteLine("╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝");
+            Console.WriteLine("Santitizes & anonymises a database with the Railsmart Schema.\n\n");
+
             var assemblies = new List<Assembly>() { typeof(Program).GetTypeInfo().Assembly };
             var pluginAssemblies = Directory.GetFiles(@"C:\GitSouce\Sanitizer\Plugins\netcoreapp3.1", "*.dll", SearchOption.TopDirectoryOnly)
                 .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)
@@ -30,18 +39,18 @@ namespace anon
             assemblies.AddRange(pluginAssemblies);
             Container = new ContainerConfiguration()
                 .WithAssemblies(assemblies);
+            using (var container = Container.CreateContainer())
+            {
+                Sanitizers = container.GetExports<ISanitizer>();
+            }
 
+            Console.WriteLine($"Found {Sanitizers.Count()} sanitizer plugins.\n");
             new Program().run();
         }
 
         private void run()
         {
             // Catalogs does not exists in Dotnet Core, so you need to manage your own.
-            using (var container = Container.CreateContainer())
-            {
-                Sanitizers = container.GetExports<ISanitizer>();
-            }
-
             var optionsBuilder = new DbContextOptionsBuilder<RailSmartContext>();
             optionsBuilder
                 .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;", o => o.CommandTimeout(60));

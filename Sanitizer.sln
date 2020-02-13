@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssessmentSanitizer", "Asse
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{F7F708C0-7BCE-4C46-83A5-ECD7B3ACD6F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssessmentCriteriaCardSanitizer", "AssessmentCriteriaCardSanitizer\AssessmentCriteriaCardSanitizer.csproj", "{58A84891-FC0B-4DCC-914C-741640EF537F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{1EE57BC7-8FF7-4E6B-96AC-BABB6FAEB7C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EE57BC7-8FF7-4E6B-96AC-BABB6FAEB7C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EE57BC7-8FF7-4E6B-96AC-BABB6FAEB7C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58A84891-FC0B-4DCC-914C-741640EF537F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58A84891-FC0B-4DCC-914C-741640EF537F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58A84891-FC0B-4DCC-914C-741640EF537F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58A84891-FC0B-4DCC-914C-741640EF537F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
