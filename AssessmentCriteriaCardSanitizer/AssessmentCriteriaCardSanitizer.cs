@@ -48,7 +48,8 @@ namespace AssessmentCriteriaCardSanitizer
                     //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
                 });
             var context = (RailSmartContext)dbToSanitize;
-            SanitizerUtil.Sanitize(dbToSanitize, context.AssessmentCriteriaCard, template);
+
+            SanitizerUtil.Sanitize<AssessmentCriteriaCard>(dbToSanitize, context.AssessmentCriteriaCard, template);
 
             return context.SaveChanges();
         }

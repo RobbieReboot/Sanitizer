@@ -4,6 +4,7 @@ using System.Composition;
 using System.Linq;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
+using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
@@ -28,10 +29,6 @@ namespace AssessmentNoteSanitizer
 
         public int Sanitize(DbContext dbToSanitize)
         {
-            var context = (RailSmartContext)dbToSanitize;
-
-            var objList = context.AssessmentNote;
-
             var template = new Faker<AssessmentNote>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false))
@@ -42,23 +39,9 @@ namespace AssessmentNoteSanitizer
                     //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
                 });
 
-            var batchNumber = 0;
-            var batchSize = 100;
+            var context = (RailSmartContext)dbToSanitize;
 
-            var batch = objList.Take(batchSize);
-            var total = objList.Count();
-            var batches = total / batchSize;
-
-            while (batch.Any())
-            {
-                foreach (var assessment in batch)
-                {
-                    template.Populate(assessment);
-                }
-                batchNumber++;
-                Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber}\r\r\r\r");
-                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
-            }
+            SanitizerUtil.Sanitize<AssessmentNote>(dbToSanitize, context.AssessmentNote, template);
 
             return context.SaveChanges();
         }

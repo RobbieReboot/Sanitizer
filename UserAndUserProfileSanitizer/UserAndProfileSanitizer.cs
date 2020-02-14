@@ -5,6 +5,7 @@ using System.Linq;
 using Bogus;
 using CountryData;
 using Microsoft.EntityFrameworkCore;
+using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
@@ -36,12 +37,10 @@ namespace UserAndUserProfileSanitizer
             var context = (RailSmartContext) dbToSanitize;
             var uniqueSuffix = 0;
 
-            var profiles = context.UserProfile
+            var objList = context.UserProfile
                 .Include(up => up.User)
                 .Include(up => up.Gender)
-                .Include(up => up.Company)
-                .Take(10)
-                .ToList();
+                .Include(up => up.Company);
 
             var userProfileTemplate = new Faker<UserProfile>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
@@ -85,31 +84,44 @@ namespace UserAndUserProfileSanitizer
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.MobileNumber, f => f.Phone.PhoneNumber("##### ######"))
                 .RuleFor(o => o.LastLoginDateMobile, f => f.Date.Recent(365))
-                .FinishWith((f, u) => { Console.WriteLine($"UserName = {u.Username}"); });
+                .FinishWith((f, u) =>
+                {
+                    //Console.WriteLine($"UserName = {u.Username}");
+                });
 
+            //var batchNumber = 0;
+            //var batchSize = 100;
 
-            //foreach (var profile in profiles)
+            //var batch= profiles.Take(batchSize);
+            //while (batch.Any())
             //{
-            //    userProfileTemplate.Populate(profile);
-            //    userTemplate.Populate(profile.User);
+            //    foreach (var profile in batch)
+            //    {
+            //        userProfileTemplate.Populate(profile);
+            //        userTemplate.Populate(profile.User);
+            //    }
+            //    batchNumber++;
+            //    batch = profiles.Skip(batchNumber * batchSize).Take(batchSize);
             //}
-
+            //SanitizerUtil.Sanitize<UserProfile>(dbToSanitize,objList,userProfileTemplate);
             var batchNumber = 0;
             var batchSize = 100;
 
-            var batch= profiles.Take(batchSize);
+            var batch = objList.Take(batchSize);
+            var total = objList.Count();
+            var batches = total / batchSize;
+
             while (batch.Any())
             {
-                foreach (var profile in batch)
+                foreach (var obj in batch)
                 {
-                    userProfileTemplate.Populate(profile);
-                    userTemplate.Populate(profile.User);
+                    userProfileTemplate.Populate(obj);
+                    userTemplate.Populate(obj.User);
                 }
                 batchNumber++;
-                batch = profiles.Skip(batchNumber * batchSize).Take(batchSize);
+                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
+                Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber}\r\r\r\r");
             }
-
-
 
             return context.SaveChanges();
         }

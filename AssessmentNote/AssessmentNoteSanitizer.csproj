@@ -18,6 +18,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Sanitizer.Contracts\Sanitizer.Contracts.csproj" />
     <ProjectReference Include="..\Sanitizer.Model\Sanitizer.Model.csproj" />
+    <ProjectReference Include="..\SanitizerUtil\SanitizerUtil.csproj" />
+    <ProjectReference Include="..\Sanitizer\Sanitizer.csproj" />
   </ItemGroup>
 
 </Project>

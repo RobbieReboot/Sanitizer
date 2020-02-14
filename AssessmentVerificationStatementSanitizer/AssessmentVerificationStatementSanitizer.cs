@@ -4,6 +4,7 @@ using System.Composition;
 using System.Linq;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
+using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
@@ -28,10 +29,6 @@ namespace AssessmentVerificationStatementSanitizer
 
         public int Sanitize(DbContext dbToSanitize)
         {
-            var context = (RailSmartContext)dbToSanitize;
-
-            var objList = context.AssessmentVerificationStatement;
-
             var template = new Faker<AssessmentVerificationStatement>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.RatingReason, f => f.WaffleText(paragraphs: 4, includeHeading: false))
@@ -43,19 +40,9 @@ namespace AssessmentVerificationStatementSanitizer
                     //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
                 });
 
-            var batchNumber = 0;
-            var batchSize = 100;
+            var context = (RailSmartContext)dbToSanitize;
 
-            var batch = objList.Take(batchSize);
-            while (batch.Any())
-            {
-                foreach (var obj in batch)
-                {
-                    template.Populate(obj);
-                }
-                batchNumber++;
-                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
-            }
+            SanitizerUtil.Sanitize<AssessmentVerificationStatement>(dbToSanitize, context.AssessmentVerificationStatement, template);
 
             return context.SaveChanges();
         }
