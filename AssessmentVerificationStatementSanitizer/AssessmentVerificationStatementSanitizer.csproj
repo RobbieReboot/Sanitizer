@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Sanitizer.Contracts\Sanitizer.Contracts.csproj" />
     <ProjectReference Include="..\Sanitizer.Model\Sanitizer.Model.csproj" />
-    <ProjectReference Include="..\SanitizerUtil\SanitizerUtil.csproj" />
   </ItemGroup>
 
 </Project>

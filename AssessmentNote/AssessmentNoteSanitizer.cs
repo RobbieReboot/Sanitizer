@@ -7,53 +7,40 @@ using Microsoft.EntityFrameworkCore;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
-namespace AssessmentSanitizer
+namespace AssessmentNoteSanitizer
 {
-    /// <summary>
-    /// Cleans the Assessments table
-    /// </summary>
-    /// <remarks>
-    ///-- Notes nvarchar(max)
-    ///-- AssessorFeedback nvarchar(max)
-    ///-- VerifierFinalFeedback nvarchar(max)
-    ///-- AssessorVerificationResponseNotes nvarchar(max)
-    /// </remarks>
     [Export(typeof(ISanitizer))]
-    public class AssessmentSanitizer : ISanitizer
+    public class AssessmentNoteSanitizer : ISanitizer
     {
-        public AssessmentSanitizer()
+        public AssessmentNoteSanitizer()
         {
-            Console.WriteLine("AssessmentSanitizer Loaded.");
+            Console.WriteLine("AssessmentNoteSanitizer Loaded.");
         }
 
         public string Name
         {
-            get { return "Assessment"; }
+            get { return "AssessmentNoteSanitizer"; }
         }
         public string Description
         {
-            get { return "Sanitizes assessments table."; }
+            get { return "Sanitizes AssessmentNoteSanitizer table."; }
         }
 
         public int Sanitize(DbContext dbToSanitize)
         {
-            var context = (RailSmartContext) dbToSanitize;
+            var context = (RailSmartContext)dbToSanitize;
 
-            var objList = context.Assessment;
+            var objList = context.AssessmentNote;
 
-            var template  = new Faker<Assessment>(locale: "en_GB")
+            var template = new Faker<AssessmentNote>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.AssessorFeedback, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.VerifierFinalFeedback, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .RuleFor(o => o.AssessorVerificationResponseNotes, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-
+                .RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false))
+                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .FinishWith((f, u) =>
                 {
                     //Console.WriteLine(
                     //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
                 });
-
 
             var batchNumber = 0;
             var batchSize = 100;
@@ -69,9 +56,10 @@ namespace AssessmentSanitizer
                     template.Populate(assessment);
                 }
                 batchNumber++;
-                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
                 Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber}\r\r\r\r");
+                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
             }
+
             return context.SaveChanges();
         }
 

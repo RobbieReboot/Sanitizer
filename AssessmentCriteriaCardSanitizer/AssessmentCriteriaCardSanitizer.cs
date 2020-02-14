@@ -4,6 +4,7 @@ using System.Composition;
 using System.Linq;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
+using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
@@ -35,35 +36,19 @@ namespace AssessmentCriteriaCardSanitizer
             get { return "Sanitizes AssessmentCriteriaCardSanitizer table."; }
         }
 
+        
         public int Sanitize(DbContext dbToSanitize)
         {
-            var context = (RailSmartContext)dbToSanitize;
-
-            var assessments = context.AssessmentCriteriaCard;
-
-            var assessmentTemplate = new Faker<AssessmentCriteriaCard>(locale: "en_GB")
+            var template = new Faker<AssessmentCriteriaCard>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ReasonForRating, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-
                 .FinishWith((f, u) =>
                 {
                     //Console.WriteLine(
                     //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
                 });
-
-            var batchNumber = 0;
-            var batchSize = 100;
-
-            var batch = assessments.Take(batchSize);
-            while (batch.Any())
-            {
-                foreach (var assessment in batch)
-                {
-                    assessmentTemplate.Populate(assessment);
-                }
-                batchNumber++;
-                batch = assessments.Skip(batchNumber * batchSize).Take(batchSize);
-            }
+            var context = (RailSmartContext)dbToSanitize;
+            SanitizerUtil.Sanitize(dbToSanitize, context.AssessmentCriteriaCard, template);
 
             return context.SaveChanges();
         }

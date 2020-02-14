@@ -61,8 +61,9 @@ namespace anon
             
             foreach (var sanitizer in Sanitizers)
             {
+                Console.WriteLine($"Sanitizing {sanitizer.Name}.");
                 sanitizer.Sanitize(dbc);
             }
         }
     }
-}
+} 
