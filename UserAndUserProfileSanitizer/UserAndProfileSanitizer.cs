@@ -9,9 +9,9 @@ using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
-namespace UserAndUserProfileSanitizer
+namespace Sanitizers
 {
-//    [Export("UserAndProfileSanitizer", typeof(ISanitizer))]
+    //    [Export("UserAndProfileSanitizer", typeof(ISanitizer))]
     [Export(typeof(ISanitizer))]
     public class UserAndUserProfileSanitizer : ISanitizer
     {
@@ -20,17 +20,10 @@ namespace UserAndUserProfileSanitizer
 
         public UserAndUserProfileSanitizer()
         {
-            Console.WriteLine("UserAndUserProfileSanitizer Loaded.");
+            Name = this.GetType().Name.Replace("Sanitizer", String.Empty);
+            Console.WriteLine($"{Name} Sanitizer Loaded.");
         }
-
-        public string Name
-        {
-            get { return "UserAndProfileSanitizer"; }
-        }
-        public string Description
-        {
-            get { return "Sanitizes User and UserProfile table."; }
-        }
+        public string Name { get; set; }
 
         public int Sanitize(DbContext dbToSanitize)
         {
@@ -110,7 +103,7 @@ namespace UserAndUserProfileSanitizer
             var batch = objList.Take(batchSize);
             var total = objList.Count();
             var batches = total / batchSize;
-
+            int totalRecords = 0;
             while (batch.Any())
             {
                 foreach (var obj in batch)
@@ -121,9 +114,9 @@ namespace UserAndUserProfileSanitizer
                 batchNumber++;
                 batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
                 Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber}\r\r\r\r");
+                totalRecords += context.SaveChanges();
             }
-
-            return context.SaveChanges();
+            return totalRecords;
         }
 
     }

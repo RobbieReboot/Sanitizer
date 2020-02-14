@@ -8,24 +8,17 @@ using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
-namespace AssessmentNoteSanitizer
+namespace Sanitizers
 {
     [Export(typeof(ISanitizer))]
     public class AssessmentNoteSanitizer : ISanitizer
     {
         public AssessmentNoteSanitizer()
         {
-            Console.WriteLine("AssessmentNoteSanitizer Loaded.");
+            Name = this.GetType().Name.Replace("Sanitizer", String.Empty);
+            Console.WriteLine($"{Name} Sanitizer Loaded.");
         }
-
-        public string Name
-        {
-            get { return "AssessmentNoteSanitizer"; }
-        }
-        public string Description
-        {
-            get { return "Sanitizes AssessmentNoteSanitizer table."; }
-        }
+        public string Name { get; set; }
 
         public int Sanitize(DbContext dbToSanitize)
         {
@@ -41,9 +34,9 @@ namespace AssessmentNoteSanitizer
 
             var context = (RailSmartContext)dbToSanitize;
 
-            SanitizerUtil.Sanitize<AssessmentNote>(dbToSanitize, context.AssessmentNote, template);
+            var total = SanitizerUtil.SanitizeAsync<AssessmentNote>(dbToSanitize, context.AssessmentNote, template);
 
-            return context.SaveChanges();
+            return total.Result;
         }
 
     }

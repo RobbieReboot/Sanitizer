@@ -11,9 +11,9 @@ using Sanitizer.Model;
 namespace Sanitizer
 {
     [Export(typeof(ISanitizer))]
-    public class Sanitizer : ISanitizer
+    public class EtdlApplicationDetailSanitizer : ISanitizer
     {
-        public Sanitizer()
+        public EtdlApplicationDetailSanitizer()
          {
             Name = this.GetType().Name.Replace("Sanitizer",String.Empty);
             Console.WriteLine($"{Name} Sanitizer Loaded.");
@@ -22,12 +22,15 @@ namespace Sanitizer
 		
         public int Sanitize(DbContext context)
         {
-            var template = new Faker<XXX>(locale: "en_GB")
+            var template = new Faker<EtdlApplicationDetail>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
-                .RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false));
+                .RuleFor(o => o.SafetyOrganisationAppliedTo, f => f.Internet.Mac())
+                .RuleFor(o => o.LicenceEuropeanIdentificationNumber, f => f.Internet.Random.Hash())
+                .RuleFor(o => o.AccompanyingDocumentationNotes, f => f.Rant.Review());
 
-            var total = SanitizerUtil.SanitizeAsync<XXX>(context, ((RailSmartContext)context).XXX, template);
+
+            var total = SanitizerUtil.SanitizeAsync<EtdlApplicationDetail>(context, ((RailSmartContext)context).EtdlApplicationDetail, template);
 
             return total.Result;
         }

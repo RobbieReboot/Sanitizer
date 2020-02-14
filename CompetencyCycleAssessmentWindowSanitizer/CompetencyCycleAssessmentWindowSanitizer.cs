@@ -8,12 +8,12 @@ using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
-namespace Sanitizer
+namespace AssessmentNoteSanitizer
 {
     [Export(typeof(ISanitizer))]
-    public class Sanitizer : ISanitizer
+    public class CompetencyCycleAssessmentWindowSanitizer : ISanitizer
     {
-        public Sanitizer()
+        public CompetencyCycleAssessmentWindowSanitizer()
          {
             Name = this.GetType().Name.Replace("Sanitizer",String.Empty);
             Console.WriteLine($"{Name} Sanitizer Loaded.");
@@ -22,13 +22,12 @@ namespace Sanitizer
 		
         public int Sanitize(DbContext context)
         {
-            var template = new Faker<XXX>(locale: "en_GB")
+            var template = new Faker<CompetencyCycleAssessmentWindow>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
-                .RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false));
+                //.RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false))
+                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100));
 
-            var total = SanitizerUtil.SanitizeAsync<XXX>(context, ((RailSmartContext)context).XXX, template);
-
+            var total = SanitizerUtil.SanitizeAsync<CompetencyCycleAssessmentWindow>(context, ((RailSmartContext)context).CompetencyCycleAssessmentWindow, template);
             return total.Result;
         }
 

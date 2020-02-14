@@ -32,11 +32,23 @@ namespace anon
             Console.WriteLine("Santitizes & anonymises a database with the Railsmart Schema.\n\n");
 
             var assemblies = new List<Assembly>() { typeof(Program).GetTypeInfo().Assembly };
-            var pluginAssemblies = Directory.GetFiles(@"C:\GitSouce\Sanitizer\Plugins\netcoreapp3.1", "*.dll", SearchOption.TopDirectoryOnly)
-                .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)
-                // Ensure that the assembly contains an implementation for the given type.
-                .Where(s => s.GetTypes().Any(p => typeof(ISanitizer).IsAssignableFrom(p)));
-            assemblies.AddRange(pluginAssemblies);
+//            var pluginFolder = @"C:\GitSouce\Sanitizer\Plugins";
+            var pluginFolder = @"..\..\..\..\Plugins";
+
+            try
+            {
+                var pluginsPath = Path.GetFullPath(pluginFolder);
+                var pluginAssemblies = Directory.GetFiles(pluginsPath, "*.dll", SearchOption.AllDirectories)
+                    .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)
+                    // Ensure that the assembly contains an implementation for the given type.
+                    .Where(s => s.GetTypes().Any(p => typeof(ISanitizer).IsAssignableFrom(p)));
+                assemblies.AddRange(pluginAssemblies);
+            }
+            catch(DirectoryNotFoundException dne)
+            {
+                Console.WriteLine($"Couldn't load plugins from folder : {pluginFolder}");
+                return;
+            }
             Container = new ContainerConfiguration()
                 .WithAssemblies(assemblies);
             using (var container = Container.CreateContainer())
@@ -62,7 +74,8 @@ namespace anon
             foreach (var sanitizer in Sanitizers)
             {
                 Console.WriteLine($"Sanitizing {sanitizer.Name}.");
-                sanitizer.Sanitize(dbc);
+                var total = sanitizer.Sanitize(dbc);
+                Console.WriteLine($"{sanitizer.Name}, {total} records.");
             }
         }
     }

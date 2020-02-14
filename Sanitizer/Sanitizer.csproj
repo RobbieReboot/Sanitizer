@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Sanitizer.Model\Sanitizer.Model.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="del $(SolutionDir)\Plugins\netcoreapp3.1\*.dll" />
+  </Target>
+
 </Project>

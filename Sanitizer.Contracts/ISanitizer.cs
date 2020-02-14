@@ -6,9 +6,8 @@ namespace Sanitizer.Contracts
 {
     public interface ISanitizer
     {
-        string Name { get; }
-        string Description { get; }
-        int Sanitize(DbContext dbToSanitize);
+        public string Name { get; set; }
+        public int Sanitize(DbContext dbToSanitize);
 
     }
 }
