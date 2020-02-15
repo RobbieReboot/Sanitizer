@@ -44,7 +44,7 @@ namespace anon
                     .Where(s => s.GetTypes().Any(p => typeof(ISanitizer).IsAssignableFrom(p)));
                 assemblies.AddRange(pluginAssemblies);
             }
-            catch(DirectoryNotFoundException dne)
+            catch(DirectoryNotFoundException)
             {
                 Console.WriteLine($"Couldn't load plugins from folder : {pluginFolder}");
                 return;
