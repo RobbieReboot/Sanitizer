@@ -68,13 +68,15 @@ namespace anon
                 .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;", o => o.CommandTimeout(60));
                 //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-            var dbc = new RailSmartContext(optionsBuilder.Options);
-
             
             foreach (var sanitizer in Sanitizers)
             {
                 Console.WriteLine($"Sanitizing {sanitizer.Name}.");
-                var total = sanitizer.Sanitize(dbc);
+                int total = 0;
+                using (var dbc = new RailSmartContext(optionsBuilder.Options))
+                {
+                    total = sanitizer.Sanitize(dbc);
+                }
                 Console.WriteLine($"{sanitizer.Name}, {total} records.");
             }
         }
