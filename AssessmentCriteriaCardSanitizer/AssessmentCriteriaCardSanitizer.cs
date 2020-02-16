@@ -20,19 +20,12 @@ namespace Sanitizers
         }
         public string Name { get; set; }
         
-        public int Sanitize(DbContext dbToSanitize)
+        public int Sanitize()
         {
             var template = new Faker<AssessmentCriteriaCard>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                .RuleFor(o => o.ReasonForRating, f => f.WaffleText(paragraphs: 4, includeHeading: false))
-                .FinishWith((f, u) =>
-                {
-                    //Console.WriteLine(
-                    //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
-                });
-            var context = (RailSmartContext)dbToSanitize;
-            
-            var total = SanitizerUtil.SanitizeAsync<AssessmentCriteriaCard>(dbToSanitize, context.AssessmentCriteriaCard, template,batchSize:1000);
+                .RuleFor(o => o.ReasonForRating, f => f.WaffleText(paragraphs: 4, includeHeading: false));
+
+            var total = SanitizerUtil.SanitizeAsync<AssessmentCriteriaCard,RailSmartContext>((RailSmartContext TContext) => TContext.AssessmentCriteriaCard, template,batchSize:1000);
 
             return total.Result;
         }

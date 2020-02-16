@@ -20,14 +20,13 @@ namespace Sanitizer
         }
         public string Name { get; set; }
 		
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<Incident>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.Description, f => f.WaffleText(paragraphs: 4, includeHeading: false));
 
-            var total = SanitizerUtil.SanitizeAsync<Incident>(context, ((RailSmartContext)context).Incident, template);
+            var total = SanitizerUtil.SanitizeAsync<Incident, RailSmartContext>((RailSmartContext TContext) => TContext.Incident, template, batchSize: 1000);
 
             return total.Result;
         }

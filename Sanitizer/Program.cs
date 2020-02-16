@@ -5,6 +5,7 @@ using CountryData;
 using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -71,13 +72,12 @@ namespace anon
             
             foreach (var sanitizer in Sanitizers)
             {
+                var timeTaken = new Stopwatch();
+                timeTaken.Start();
                 Console.WriteLine($"Sanitizing {sanitizer.Name}.");
-                int total = 0;
-                using (var dbc = new RailSmartContext(optionsBuilder.Options))
-                {
-                    total = sanitizer.Sanitize(dbc);
-                }
-                Console.WriteLine($"{sanitizer.Name}, {total} records.");
+                int total = sanitizer.Sanitize();
+                timeTaken.Stop();
+                Console.WriteLine($"{sanitizer.Name}, {total} records sanitized in {timeTaken.Elapsed.Minutes:D}m {timeTaken.Elapsed.Seconds:D}s.");
             }
         }
     }

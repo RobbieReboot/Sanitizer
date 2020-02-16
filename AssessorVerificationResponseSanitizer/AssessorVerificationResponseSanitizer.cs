@@ -20,20 +20,12 @@ namespace Sanitizers
         }
         public string Name { get; set; }
 
-        public int Sanitize(DbContext dbToSanitize)
+        public int Sanitize()
         {
             var template = new Faker<AssessorVerificationResponse>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
-                .FinishWith((f, u) =>
-                {
-                    //Console.WriteLine(
-                    //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
-                });
+                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100));
 
-            var context = (RailSmartContext)dbToSanitize;
-
-            var total = SanitizerUtil.SanitizeAsync<AssessorVerificationResponse>(dbToSanitize, context.AssessorVerificationResponse, template);
+            var total = SanitizerUtil.SanitizeAsync<AssessorVerificationResponse, RailSmartContext>((RailSmartContext TContext) => TContext.AssessorVerificationResponse, template, batchSize: 1000);
 
             return total.Result;
         }

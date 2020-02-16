@@ -21,24 +21,16 @@ namespace Sanitizers
         }
         public string Name { get; set; }
 
-        public int Sanitize(DbContext dbToSanitize)
+        public int Sanitize()
         {
-            var template  = new Faker<Assessment>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
+            var template = new Faker<Assessment>(locale: "en_GB")
                 .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 2, includeHeading: false))
                 .RuleFor(o => o.AssessorFeedback, f => f.WaffleText(paragraphs: 2, includeHeading: false))
                 .RuleFor(o => o.VerifierFinalFeedback, f => f.WaffleText(paragraphs: 2, includeHeading: false))
-                .RuleFor(o => o.AssessorVerificationResponseNotes, f => f.WaffleText(paragraphs: 2, includeHeading: false))
+                .RuleFor(o => o.AssessorVerificationResponseNotes,
+                    f => f.WaffleText(paragraphs: 2, includeHeading: false));
 
-                .FinishWith((f, u) =>
-                {
-                    //Console.WriteLine(
-                    //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
-                });
-
-            var context = (RailSmartContext)dbToSanitize;
-
-            var total = SanitizerUtil.SanitizeAsync<Assessment>(dbToSanitize, context.Assessment, template);
+            var total = SanitizerUtil.SanitizeAsync<Assessment, RailSmartContext>((RailSmartContext TContext) => TContext.Assessment, template, batchSize: 1000);
 
             return total.Result;
 

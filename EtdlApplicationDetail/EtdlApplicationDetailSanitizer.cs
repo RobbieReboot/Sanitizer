@@ -20,17 +20,16 @@ namespace Sanitizer
         }
         public string Name { get; set; }
 		
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<EtdlApplicationDetail>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.SafetyOrganisationAppliedTo, f => f.Internet.Mac())
                 .RuleFor(o => o.LicenceEuropeanIdentificationNumber, f => f.Internet.Random.Hash())
                 .RuleFor(o => o.AccompanyingDocumentationNotes, f => f.Rant.Review());
 
 
-            var total = SanitizerUtil.SanitizeAsync<EtdlApplicationDetail>(context, ((RailSmartContext)context).EtdlApplicationDetail, template);
+            var total = SanitizerUtil.SanitizeAsync<EtdlApplicationDetail, RailSmartContext>((RailSmartContext TContext) => TContext.EtdlApplicationDetail, template, batchSize: 1000);
 
             return total.Result;
         }

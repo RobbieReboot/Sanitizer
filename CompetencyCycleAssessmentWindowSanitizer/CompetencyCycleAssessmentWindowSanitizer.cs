@@ -20,14 +20,14 @@ namespace AssessmentNoteSanitizer
         }
         public string Name { get; set; }
 		
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<CompetencyCycleAssessmentWindow>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
-                //.RuleFor(o => o.Note, f => f.WaffleText(paragraphs: 4, includeHeading: false))
+                .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 4, includeHeading: false))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100));
 
-            var total = SanitizerUtil.SanitizeAsync<CompetencyCycleAssessmentWindow>(context, ((RailSmartContext)context).CompetencyCycleAssessmentWindow, template);
+            var total = SanitizerUtil.SanitizeAsync<CompetencyCycleAssessmentWindow, RailSmartContext>((RailSmartContext TContext) => TContext.CompetencyCycleAssessmentWindow, template, batchSize: 1000);
+
             return total.Result;
         }
 
