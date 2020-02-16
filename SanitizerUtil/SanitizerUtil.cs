@@ -12,35 +12,12 @@ namespace Sanitizer
 {
     public static class SanitizerUtil
     {
-        //public static async System.Threading.Tasks.Task<int> SanitizeAsync<T>(DbContext context, DbSet<T> objList, Faker<T> template,int batchSize = 100) where T : class
-        //{
-        //    context.ChangeTracker.LazyLoadingEnabled = false;
-        //    var batchNumber = 0;
-        //    var batch = objList.Take(batchSize);
-        //    var total = objList.Count();
-        //    var batches = total / batchSize;
-        //    int totalRecords = 0;
-        //    Console.WriteLine($"{total} records.");
-        //    while (batch.Any())
-        //    {
-        //        foreach (var obj in batch)
-        //        {
-        //            template.Populate(obj);
-        //        }
-        //        batchNumber++;
-        //        batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
-        //        Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber:#####}\r");
-        //        totalRecords += await context.SaveChangesAsync();
-        //    }
-        //    return totalRecords;
-        //}
-
+        public static DbContextOptions DbContextOptions { get; set; }
         public static async Task<int> SanitizeAsync<T,TContext>(
             Func<TContext, DbSet<T>> dbSet,
             Faker<T> template,
             int batchSize) where T : class where TContext : class, new()
         {
-
             int total = 0;
             using (var context = (IDisposable)new TContext())
             {
@@ -54,7 +31,8 @@ namespace Sanitizer
             bool more = true;
             do
             {
-                using (var context= (IDisposable) new TContext())
+//                using (var context = (IDisposable)new TContext())
+                using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
                 {
                     var set = dbSet((TContext) context);
                     var currentBatch = set.Skip(batchNumber * batchSize).Take(batchSize);

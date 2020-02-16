@@ -73,13 +73,12 @@ namespace anon
         {
             // Catalogs does not exists in Dotnet Core, so you need to manage your own.
             var optionsBuilder = new DbContextOptionsBuilder<RailSmartContext>();
-            //optionsBuilder
-            //    .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(60));
             optionsBuilder
-                .UseSqlServer($"Server={args[0]};Database={args[1]};Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(60));
+                .UseSqlServer($"Server={args[0]};Database={args[1]};Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(120));
+            Sanitizer.SanitizerUtil.DbContextOptions = optionsBuilder.Options;
 
             List<Tuple<string,TimeSpan,int>> timings = new List<Tuple<string, TimeSpan, int>>(Sanitizers.Count());
-            
+            var ctx = new RailSmartContext(optionsBuilder.Options);
             foreach (var sanitizer in Sanitizers)
             {
                 var timeTaken = new Stopwatch();
