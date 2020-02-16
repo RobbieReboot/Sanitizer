@@ -20,15 +20,14 @@ namespace Sanitizer
         }
         public string Name { get; set; }
 		
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<ComplementaryCertificateUserDetail>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.AdditionalInformation, f => f.WaffleText(paragraphs: 4, includeHeading: false))
                 .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 4, includeHeading: false));
 
-            var total = SanitizerUtil.SanitizeAsync<ComplementaryCertificateUserDetail>(context, ((RailSmartContext)context).ComplementaryCertificateUserDetail, template);
+            var total = SanitizerUtil.SanitizeAsync<ComplementaryCertificateUserDetail, RailSmartContext>((RailSmartContext TContext) => TContext.ComplementaryCertificateUserDetail, template, batchSize: 1000);
 
             return total.Result;
         }

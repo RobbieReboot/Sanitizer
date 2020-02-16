@@ -20,10 +20,9 @@ namespace Sanitizer
         }
         public string Name { get; set; }
 		
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<SupportPlan>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.ReasonForSupportPlanNotes, f => f.WaffleText(paragraphs: 1, includeHeading: false))
                 .RuleFor(o => o.EmployeePersonalCommitmentAction, f => f.WaffleText(paragraphs: 1, includeHeading: false))
@@ -31,7 +30,7 @@ namespace Sanitizer
                 .RuleFor(o => o.FinalFeedback, f => f.WaffleText(paragraphs: 1, includeHeading: false))
                 .RuleFor(o => o.VerifierFinalFeedback, f => f.WaffleText(paragraphs: 1, includeHeading: false));
 
-            var total = SanitizerUtil.SanitizeAsync<SupportPlan>(context, ((RailSmartContext)context).SupportPlan, template);
+            var total = SanitizerUtil.SanitizeAsync<SupportPlan, RailSmartContext>((RailSmartContext TContext) => TContext.SupportPlan, template, batchSize: 1000);
 
             return total.Result;
         }

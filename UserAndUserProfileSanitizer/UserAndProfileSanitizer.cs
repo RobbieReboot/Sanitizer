@@ -25,15 +25,9 @@ namespace Sanitizers
         }
         public string Name { get; set; }
 
-        public int Sanitize(DbContext dbToSanitize)
+        public int Sanitize()
         {
-            var context = (RailSmartContext) dbToSanitize;
             var uniqueSuffix = 0;
-
-            var objList = context.UserProfile
-                .Include(up => up.User)
-                .Include(up => up.Gender)
-                .Include(up => up.Company);
 
             var userProfileTemplate = new Faker<UserProfile>(locale: "en_GB")
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
@@ -47,13 +41,7 @@ namespace Sanitizers
                     + " " + new Randomizer().Replace("#*?"))
                 .RuleFor(o => o.BirthplaceTown, (f, u) =>
                         PostCodeData.SingleOrDefault<KeyValuePair<string, IReadOnlyList<IPlace>>>(p =>
-                        p.Key == u.BirthplacePostcode.Substring(0, u.BirthplacePostcode.IndexOf(' '))).Value[0]?.Name)
-                .FinishWith((f, u) =>
-                {
-                    //Console.WriteLine(
-                    //    $"User name {u.User.FullName},  Town = {u.BirthplaceTown}, Postcode = {u.BirthplacePostcode}");
-                });
-
+                        p.Key == u.BirthplacePostcode.Substring(0, u.BirthplacePostcode.IndexOf(' '))).Value[0]?.Name);
             var userTemplate = new Faker<User>()
                 //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.Forename, f => f.Name.FirstName())
@@ -76,46 +64,15 @@ namespace Sanitizers
                 .RuleFor(o => o.LastLoginDate, f => f.Date.Recent(365))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.MobileNumber, f => f.Phone.PhoneNumber("##### ######"))
-                .RuleFor(o => o.LastLoginDateMobile, f => f.Date.Recent(365))
-                .FinishWith((f, u) =>
-                {
-                    //Console.WriteLine($"UserName = {u.Username}");
-                });
+                .RuleFor(o => o.LastLoginDateMobile, f => f.Date.Recent(365));
+                //.FinishWith((f, u) =>
+                //{
+                //    //Console.WriteLine($"UserName = {u.Username}");
+                //});
 
-            //var batchNumber = 0;
-            //var batchSize = 100;
-
-            //var batch= profiles.Take(batchSize);
-            //while (batch.Any())
-            //{
-            //    foreach (var profile in batch)
-            //    {
-            //        userProfileTemplate.Populate(profile);
-            //        userTemplate.Populate(profile.User);
-            //    }
-            //    batchNumber++;
-            //    batch = profiles.Skip(batchNumber * batchSize).Take(batchSize);
-            //}
-            //SanitizerUtil.Sanitize<UserProfile>(dbToSanitize,objList,userProfileTemplate);
-            var batchNumber = 0;
-            var batchSize = 100;
-
-            var batch = objList.Take(batchSize);
-            var total = objList.Count();
-            var batches = total / batchSize;
-            int totalRecords = 0;
-            while (batch.Any())
-            {
-                foreach (var obj in batch)
-                {
-                    userProfileTemplate.Populate(obj);
-                    userTemplate.Populate(obj.User);
-                }
-                batchNumber++;
-                batch = objList.Skip(batchNumber * batchSize).Take(batchSize);
-                Console.Write($"Completed {((double)batchNumber / (double)batches) * 100.0:##0.00}%, Batch {batchNumber}\r\r\r\r");
-                totalRecords += context.SaveChanges();
-            }
+            var totalRecords = SanitizerUtil.SanitizeAsync<UserProfile, RailSmartContext>((RailSmartContext TContext) => TContext.UserProfile, userProfileTemplate, batchSize: 1000).Result;
+            totalRecords += SanitizerUtil.SanitizeAsync<User,Company, RailSmartContext>((RailSmartContext TContext) => TContext.User.Include(t=>t.Company),
+                    userTemplate, batchSize: 1000).Result;
             return totalRecords;
         }
 

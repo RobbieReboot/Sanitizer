@@ -11,9 +11,9 @@ using Sanitizer.Model;
 namespace Sanitizer
 {
     [Export(typeof(ISanitizer))]
-    public class IncidentSanitizer : ISanitizer
+    public class UserFileNoteSanitizer : ISanitizer
     {
-        public IncidentSanitizer()
+        public UserFileNoteSanitizer()
          {
             Name = this.GetType().Name.Replace("Sanitizer",String.Empty);
             Console.WriteLine($"{Name} Sanitizer Loaded.");
@@ -22,11 +22,10 @@ namespace Sanitizer
 		
         public int Sanitize()
         {
-            var template = new Faker<Incident>(locale: "en_GB")
-                .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
-                .RuleFor(o => o.Description, f => f.WaffleText(paragraphs: 4, includeHeading: false));
+            var template = new Faker<UserFileNote>(locale: "en_GB")
+                .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 2, includeHeading: false));
 
-            var total = SanitizerUtil.SanitizeAsync<Incident, RailSmartContext>((RailSmartContext TContext) => TContext.Incident, template, batchSize: 1000);
+            var total = SanitizerUtil.SanitizeAsync<UserFileNote, RailSmartContext>((RailSmartContext TContext) => TContext.UserFileNote, template, batchSize: 1000);
 
             return total.Result;
         }

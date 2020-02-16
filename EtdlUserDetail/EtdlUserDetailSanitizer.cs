@@ -23,10 +23,9 @@ namespace Sanitizer
         private static readonly ICountry CountryData = CountryLoader.LoadUnitedKingdomLocationData();
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<IPlace>> PostCodeData = CountryData.PostCodes();
 
-        public int Sanitize(DbContext context)
+        public int Sanitize()
         {
             var template = new Faker<EtdlUserDetail>(locale: "en_GB")
-                //.CustomInstantiator(f => new TableUser(customerId++.ToString()))
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
                 .RuleFor(o => o.BirthplacePostcode, f => f.PickRandom<IReadOnlyList<IPlace>>(f.PickRandom<KeyValuePair<string, IReadOnlyList<IPlace>>>(PostCodeData)
                          .Value).First<IPlace>().PostCode
@@ -37,7 +36,7 @@ namespace Sanitizer
                 .RuleFor(o => o.Telephone, f => f.Phone.PhoneNumber("##### ######"));
 
 
-            var total = SanitizerUtil.SanitizeAsync<EtdlUserDetail>(context, ((RailSmartContext)context).EtdlUserDetail, template);
+            var total = SanitizerUtil.SanitizeAsync<EtdlUserDetail, RailSmartContext>((RailSmartContext TContext) => TContext.EtdlUserDetail, template, batchSize: 1000);
 
             return total.Result;
         }

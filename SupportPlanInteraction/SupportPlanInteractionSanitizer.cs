@@ -11,9 +11,9 @@ using Sanitizer.Model;
 namespace Sanitizer
 {
     [Export(typeof(ISanitizer))]
-    public class ComplementaryCertificateUserDetailLanguageSkillSanitizer : ISanitizer
+    public class SupportPlanInteractionSanitizer : ISanitizer
     {
-        public ComplementaryCertificateUserDetailLanguageSkillSanitizer()
+        public SupportPlanInteractionSanitizer()
          {
             Name = this.GetType().Name.Replace("Sanitizer",String.Empty);
             Console.WriteLine($"{Name} Sanitizer Loaded.");
@@ -22,11 +22,12 @@ namespace Sanitizer
 		
         public int Sanitize()
         {
-            var template = new Faker<ComplementaryCertificateUserDetailLanguageSkill>(locale: "en_GB")
+            var template = new Faker<SupportPlanInteraction>(locale: "en_GB")
                 .RuleFor(o => o.ModifiedDate, f => f.Date.Recent(100))
-                .RuleFor(o => o.Notes, f => f.WaffleText(paragraphs: 4, includeHeading: false));
+                .RuleFor(o => o.Description, f => f.WaffleText(paragraphs: 2, includeHeading: false))
+                .RuleFor(o => o.OtherPlannedInteractionType, f => f.WaffleText(paragraphs: 2, includeHeading: false));
 
-            var total = SanitizerUtil.SanitizeAsync<ComplementaryCertificateUserDetailLanguageSkill, RailSmartContext>((RailSmartContext TContext) => TContext.ComplementaryCertificateUserDetailLanguageSkill, template, batchSize: 1000);
+            var total = SanitizerUtil.SanitizeAsync<SupportPlanInteraction, RailSmartContext>((RailSmartContext TContext) => TContext.SupportPlanInteraction, template, batchSize: 1000);
 
             return total.Result;
         }
