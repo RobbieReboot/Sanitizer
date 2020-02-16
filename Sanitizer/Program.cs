@@ -69,6 +69,7 @@ namespace anon
                 .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;", o => o.CommandTimeout(60));
                 //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
+            List<Tuple<string,TimeSpan,int>> timings = new List<Tuple<string, TimeSpan, int>>(Sanitizers.Count());
             
             foreach (var sanitizer in Sanitizers)
             {
@@ -78,6 +79,18 @@ namespace anon
                 int total = sanitizer.Sanitize();
                 timeTaken.Stop();
                 Console.WriteLine($"{sanitizer.Name}, {total} records sanitized in {timeTaken.Elapsed.Minutes:D}m {timeTaken.Elapsed.Seconds:D}s.");
+                timings.Add(new Tuple<string, TimeSpan, int>(sanitizer.Name,timeTaken.Elapsed,total));
+            }
+
+            var col1 = "Sanitizer";
+            var col2 = "Time taken";
+            var col3 = "Records";
+
+            Console.WriteLine($"\n\n{col1,-32} {col2,-16} {col3,-12}");
+            Console.WriteLine($"{new string('=',32)} {new string('=', 16)} {new string('=', 12)}");
+            foreach (var t in timings)
+            {
+                Console.WriteLine($"{t.Item1,-32} {t.Item2,-16} {t.Item3:D,-12}");
             }
         }
     }
