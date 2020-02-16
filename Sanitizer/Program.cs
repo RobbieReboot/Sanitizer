@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.EntityFrameworkCore;
+using Sanitizer;
 using Sanitizer.Contracts;
 using Sanitizer.Model;
 
@@ -31,6 +32,13 @@ namespace anon
             Console.WriteLine("███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██║  ██║");
             Console.WriteLine("╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝");
             Console.WriteLine("Santitizes & anonymises a database with the Railsmart Schema.\n\n");
+
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Usage:\n");
+                Console.WriteLine("        sanitizer <server> <database-name>:\n");
+                return;
+            }
 
             var assemblies = new List<Assembly>() { typeof(Program).GetTypeInfo().Assembly };
 //            var pluginFolder = @"C:\GitSouce\Sanitizer\Plugins";
@@ -58,16 +66,17 @@ namespace anon
             }
 
             Console.WriteLine($"Found {Sanitizers.Count()} sanitizer plugins.\n");
-            new Program().run();
+            new Program().run(args);
         }
 
-        private void run()
+        private void run(string[] args)
         {
             // Catalogs does not exists in Dotnet Core, so you need to manage your own.
             var optionsBuilder = new DbContextOptionsBuilder<RailSmartContext>();
+            //optionsBuilder
+            //    .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(60));
             optionsBuilder
-                .UseSqlServer("Server=.\\;Database=RailSmart-DEV-Local-EMT;Trusted_Connection=True;", o => o.CommandTimeout(60));
-                //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                .UseSqlServer($"Server={args[0]};Database={args[1]};Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(60));
 
             List<Tuple<string,TimeSpan,int>> timings = new List<Tuple<string, TimeSpan, int>>(Sanitizers.Count());
             
@@ -79,18 +88,19 @@ namespace anon
                 int total = sanitizer.Sanitize();
                 timeTaken.Stop();
                 Console.WriteLine($"{sanitizer.Name}, {total} records sanitized in {timeTaken.Elapsed.Minutes:D}m {timeTaken.Elapsed.Seconds:D}s.");
-                timings.Add(new Tuple<string, TimeSpan, int>(sanitizer.Name,timeTaken.Elapsed,total));
-            }
+                timings.Add(new Tuple<string, TimeSpan, int>(sanitizer.Name.Elipsize(32),timeTaken.Elapsed,total));
+            } 
 
             var col1 = "Sanitizer";
             var col2 = "Time taken";
-            var col3 = "Records";
+            var col3 = "Records"; 
 
             Console.WriteLine($"\n\n{col1,-32} {col2,-16} {col3,-12}");
             Console.WriteLine($"{new string('=',32)} {new string('=', 16)} {new string('=', 12)}");
             foreach (var t in timings)
             {
-                Console.WriteLine($"{t.Item1,-32} {t.Item2,-16} {t.Item3:D,-12}");
+                var tm = $"{t.Item2.Minutes:00}:{t.Item2.Seconds:00}:{t.Item2.Milliseconds:000}";
+                Console.WriteLine($"{t.Item1,-32} {tm,16} {t.Item3,12}");
             }
         }
     }

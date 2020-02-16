@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Sanitizer": {
+      "commandName": "Project",
+      "commandLineArgs": ".\\ RailSmart-DEV-Local-EMT"
+    }
+  }
+}
