@@ -2,7 +2,7 @@
   "profiles": {
     "Sanitizer": {
       "commandName": "Project",
-      "commandLineArgs": ".\\ RailSmart-DEV-Local-EMT"
+      "commandLineArgs": ".\\ Railsmart-PROD-South_Western_Railway"
     }
   }
 }

@@ -19,7 +19,7 @@ namespace Sanitizer
             int batchSize) where T : class where TContext : class, new()
         {
             int total = 0;
-            using (var context = (IDisposable)new TContext())
+            using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
             {
                 total = dbSet((TContext)context).Count();
             }
@@ -31,7 +31,7 @@ namespace Sanitizer
             bool more = true;
             do
             {
-//                using (var context = (IDisposable)new TContext())
+//                using (var context = (IDisposable)new TContext(DbContextOptions))
                 using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
                 {
                     var set = dbSet((TContext) context);
