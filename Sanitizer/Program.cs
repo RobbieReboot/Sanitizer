@@ -25,13 +25,17 @@ namespace anon
         private static void Main(string[] args)
         {
             
-            Console.WriteLine("███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗██████╗ ");
-            Console.WriteLine("██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝██╔══██╗");
-            Console.WriteLine("███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗  ██████╔╝");
-            Console.WriteLine("╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝  ██╔══██╗");
-            Console.WriteLine("███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██║  ██║");
-            Console.WriteLine("╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝");
+
+
+            Console.WriteLine(@" _____                _  _    _                  ");
+            Console.WriteLine(@"/  ___|              (_)| |  (_)                 ");
+            Console.WriteLine(@"\ `--.   __ _  _ __   _ | |_  _  ____  ___  _ __ ");
+            Console.WriteLine(@" `--. \ / _` || '_ \ | || __|| ||_  / / _ \| '__|");
+            Console.WriteLine(@"/\__/ /| (_| || | | || || |_ | | / / |  __/| |   ");
+            Console.WriteLine(@"\____/  \__,_||_| |_||_| \__||_|/___| \___||_|   ");
+            Console.WriteLine("                                                 ");
             Console.WriteLine("Santitizes & anonymises a database with the Railsmart Schema.\n\n");
+            Console.WriteLine();
 
             if (args.Length != 2)
             {
@@ -40,9 +44,10 @@ namespace anon
                 return;
             }
 
-            var assemblies = new List<Assembly>() { typeof(Program).GetTypeInfo().Assembly };
-//            var pluginFolder = @"C:\GitSouce\Sanitizer\Plugins";
-            var pluginFolder = @"..\..\..\..\Plugins";
+            var assemblies = new List<Assembly>();  // { typeof(Program).GetTypeInfo().Assembly };
+            //            var pluginFolder = @"C:\GitSouce\Sanitizer\Plugins";
+            var pluginFolder = @"Sanitizer\Plugins";
+
 
             try
             {
@@ -74,7 +79,7 @@ namespace anon
             // Catalogs does not exists in Dotnet Core, so you need to manage your own.
             var optionsBuilder = new DbContextOptionsBuilder<RailSmartContext>();
             optionsBuilder
-                .UseSqlServer($"Server={args[0]};Database={args[1]};Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(120));
+                .UseSqlServer($"Server={args[0]};Database={args[1]};Trusted_Connection=True;MultipleActiveResultSets=true", o => o.CommandTimeout(600));
             Sanitizer.SanitizerUtil.DbContextOptions = optionsBuilder.Options;
 
             List<Tuple<string,TimeSpan,int>> timings = new List<Tuple<string, TimeSpan, int>>(Sanitizers.Count());
