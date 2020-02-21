@@ -21,6 +21,7 @@ namespace Sanitizer
             int total = 0;
             using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
             {
+//                ((DbContext)context).Database.
                 total = dbSet((TContext)context).Count();
             }
 
@@ -68,9 +69,8 @@ namespace Sanitizer
             Faker<T> template,
             int batchSize) where T : class where T1 : class where TContext : class, new()
         {
-
             int total = 0;
-            using (var context = (IDisposable)new TContext())
+            using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
             {
                 total = dbSet((TContext)context).Count();
             }
@@ -82,7 +82,7 @@ namespace Sanitizer
             bool more = true;
             do
             {
-                using (var context = (IDisposable)new TContext())
+                using (var context = (IDisposable)((TContext)Activator.CreateInstance(typeof(TContext), DbContextOptions)))
                 {
                     var set = dbSet((TContext)context);
                     var currentBatch = set.Skip(batchNumber * batchSize).Take(batchSize);
